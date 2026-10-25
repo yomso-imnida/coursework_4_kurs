@@ -1,0 +1,5 @@
+[general]
+criteria = "CR"
+CR_bound = 0.4
+CR2_bound = 0.0
+inp_class = "class_1"
