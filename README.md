@@ -60,3 +60,23 @@ python3 tests/format_compare/test_schedules.py --original build/sched --modified
 ```
 
 На 22 подготовленных графах расписания двух программ совпадают: **22/22 PASS**.
+
+## Конвертация форматов
+
+Для сравнения программ используется один граф RS2 и одна матрица задержек.
+
+Сначала генерируем матрицу (пример для 4 процессоров с одинаковой задержкой 7):
+
+```bash
+python3 scripts/generate_delay_matrix.py --processors 4 --delay 7 --output /tmp/delays.txt
+```
+
+Затем преобразуем RS2 в формат 1, используя ту же матрицу:
+
+```bash
+python3 coursework_kret/algo/tests/format_compare/convert_to_format1.py --input tests/format_compare_graphs/triang_small/triang_4.txt --matrix /tmp/delays.txt --output /tmp/graph.in
+```
+
+Полученный `.in` передаётся старой программе. Новая программа получает исходный RS2-граф и ту же матрицу напрямую.
+
+Конвертация выполняется отдельно от запуска программ и сравнения расписаний.
