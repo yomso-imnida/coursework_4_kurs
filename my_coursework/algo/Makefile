@@ -1,7 +1,7 @@
 BUILD_DIR := build
 DEBUG_DIR := build-debug
 
-INPUT := ../layer_class_1_based_on_1/5_500.in
+INPUT := ../../coursework_kret/layer_class_1_based_on_1/5_500.in
 GRAPH := input/graph.txt
 MATRIX := input/delays.txt
 

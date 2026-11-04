@@ -37,7 +37,7 @@ DelayMatrix DelayMatrix::read(const std::string& path) {
             }
 
             if (pos != token.size() ||
-                value < std::numeric_limits<int>::min() ||
+                value < 0 ||
                 value > std::numeric_limits<int>::max()) {
                 throw std::runtime_error(
                     "ERROR: invalid delay matrix value");
