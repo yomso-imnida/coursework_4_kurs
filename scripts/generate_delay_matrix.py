@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """Generate a shared processor-to-processor delay matrix."""
 

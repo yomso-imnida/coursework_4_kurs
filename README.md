@@ -80,3 +80,21 @@ python3 coursework_kret/algo/tests/format_compare/convert_to_format1.py --input 
 Полученный `.in` передаётся старой программе. Новая программа получает исходный RS2-граф и ту же матрицу напрямую.
 
 Конвертация выполняется отдельно от запуска программ и сравнения расписаний.
+
+## Сравнение программ
+
+Сравнение на одном графе:
+
+```bash
+python3 scripts/compare_schedules.py --graph triang_small/triang_4 --processors 4 --delay 7
+```
+
+Проверка 22 графов:
+
+```bash
+python3 scripts/compare_all.py
+```
+
+Скрипты автоматически генерируют матрицы задержек, преобразуют входные данные, запускают обе программы и сравнивают расписания.
+
+Результаты и логи сохраняются в `/tmp/coursework_compare` и `/tmp/coursework_compare_all`.
