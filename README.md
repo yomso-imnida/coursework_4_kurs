@@ -89,7 +89,7 @@ python3 coursework_kret/algo/tests/format_compare/convert_to_format1.py --input 
 python3 scripts/compare_schedules.py --graph triang_small/triang_4 --processors 4 --delay 7
 ```
 
-Проверка 22 графов:
+Проверка всех 22 графов:
 
 ```bash
 python3 scripts/compare_all.py
@@ -98,3 +98,21 @@ python3 scripts/compare_all.py
 Скрипты автоматически генерируют матрицы задержек, преобразуют входные данные, запускают обе программы и сравнивают расписания.
 
 Результаты и логи сохраняются в `/tmp/coursework_compare` и `/tmp/coursework_compare_all`.
+
+## Визуализация
+
+Для диаграмм Ганта требуется `matplotlib` (`sudo apt install python3-matplotlib`).
+
+После запуска `compare_schedules.py` можно построить два изображения:
+
+```bash
+D=/tmp/coursework_compare/triang_small/triang_4
+
+python3 coursework_kret/algo/tests/format_compare/visualize_graphs.py --rs2 coursework_kret/algo/tests/format_compare_graphs/triang_small/triang_4.txt --format1 "$D/graph.in" --output "$D/graphs.svg"
+
+python3 scripts/visualize_schedules.py --new "$D/normalized_new.json" --old "$D/normalized_old.json" --output "$D/schedules.svg"
+```
+
+`graphs.svg` - два графа (RS2 слева, `.in` справа).
+
+`schedules.svg` - две диаграммы построенных расписаний (новая программа сверху, старая снизу). Цвета обозначают работы, штриховка - простои.
