@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -40,6 +41,8 @@ def main():
     parser.add_argument("--delay", type=int, default=2)
     parser.add_argument("--algo", default="misf")
     parser.add_argument("--random", type=int, default=1234)
+    parser.add_argument("--graph-dir", type=Path, default=GRAPHS)
+    parser.add_argument("--cr", type=float)
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -47,8 +50,9 @@ def main():
     )
     args = parser.parse_args()
 
-    graph = (GRAPHS / f"{args.graph}.txt").resolve()
-    if not graph.is_relative_to(GRAPHS) or not graph.is_file():
+    graph_dir = (ROOT / args.graph_dir).resolve()
+    graph = (graph_dir / f"{args.graph}.txt").resolve()
+    if not graph.is_relative_to(graph_dir) or not graph.is_file():
         parser.error(f"Graph not found: {graph}")
 
     output = (args.output_dir / args.graph).resolve()
@@ -61,6 +65,24 @@ def main():
 
     old_exe = ROOT / "coursework_kret/algo/build/sched"
     new_exe = ROOT / "my_coursework/algo/build/sched"
+
+    old_conf = ROOT / "coursework_kret/algo/config.toml"
+    new_conf = ROOT / "my_coursework/algo/config.toml"
+    if args.cr is not None:
+        if not 0.0 <= args.cr <= 1.0:
+            parser.error("--cr must be between 0 and 1")
+        config_text = old_conf.read_text(encoding="utf-8")
+        config_text, replacements = re.subn(
+            r"(?m)^CR_bound\s*=.*$",
+            f"CR_bound = {args.cr}",
+            config_text,
+        )
+        if replacements != 1:
+            parser.error("Expected exactly one CR_bound in config.toml")
+        experiment_conf = output / "config.toml"
+        experiment_conf.write_text(config_text, encoding="utf-8")
+        # Both schedulers receive exactly the same experiment config.
+        old_conf = new_conf = experiment_conf
 
     for executable in (old_exe, new_exe):
         if not executable.is_file():
@@ -85,7 +107,7 @@ def main():
             old_exe,
             "--input", old_input,
             "--output", old_json,
-            "--conf", ROOT / "coursework_kret/algo/config.toml",
+            "--conf", old_conf,
             "--command", args.algo,
             "--random", args.random,
         ], output / "old.log")
@@ -95,7 +117,7 @@ def main():
             "--graph", graph,
             "--matrix", matrix,
             "--output", new_json,
-            "--conf", ROOT / "my_coursework/algo/config.toml",
+            "--conf", new_conf,
             "--command", args.algo,
             "--random", args.random,
         ], output / "new.log")
@@ -120,6 +142,8 @@ def main():
 
         print(f"PASS: {args.graph}")
         print(f"Processors: {args.processors}, delay: {args.delay}")
+        if args.cr is not None:
+            print(f"CR: {args.cr}")
         print(f"Schedule time: {old['time']}")
         print(f"Results: {output}")
         return 0
