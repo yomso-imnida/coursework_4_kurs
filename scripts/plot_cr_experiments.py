@@ -3,6 +3,7 @@
 
 import argparse
 import csv
+import math
 from pathlib import Path
 
 import matplotlib
@@ -12,7 +13,6 @@ from matplotlib.ticker import MultipleLocator
 
 ROOT = Path(__file__).resolve().parent.parent
 
-GRAPHS = ("triadag10_0", "triadag20_0", "triadag30_0")
 PROCESSORS = (4, 8, 16)
 DELAYS = (2, 7)
 CR_VALUES = (0.2, 0.4, 0.6, 0.8)
@@ -145,7 +145,12 @@ def plot_one(results, graph, processors, delay, output_dir):
         pad=19,
     )
 
-    ax.set_ylim(0, 1.1)
+    max_ratio = max(
+        value / results[(g, p, cr, d, "misf")]
+        for (g, p, cr, d, _), value in results.items()
+    )
+    upper_limit = max(1.1, math.ceil(max_ratio * 10) / 10)
+    ax.set_ylim(0, upper_limit)
     ax.yaxis.set_major_locator(MultipleLocator(0.1))
     ax.yaxis.grid(
         True,
@@ -201,7 +206,7 @@ def main():
         type=Path,
         default=ROOT / "results/cr_charts",
     )
-    parser.add_argument("--graph", choices=GRAPHS)
+    parser.add_argument("--graph")
     parser.add_argument(
         "--processors",
         type=int,
@@ -218,7 +223,13 @@ def main():
     results = read_results(args.input)
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    graphs = [args.graph] if args.graph else GRAPHS
+    graphs = sorted({key[0] for key in results})
+
+    if args.graph is not None:
+        if args.graph not in graphs:
+            parser.error(f"Graph not found in CSV: {args.graph}")
+        graphs = [args.graph]
+
     processors = (
         [args.processors]
         if args.processors

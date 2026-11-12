@@ -64,7 +64,7 @@ def run_case(args, graph, processors, cr, delay, algo):
     command = [
         sys.executable,
         str(ROOT / "scripts/compare_schedules.py"),
-        "--graph-dir", "graphs_triang",
+        "--graph-dir", str(args.graph_dir),
         "--graph", graph,
         "--processors", str(processors),
         "--cr", cr_text,
@@ -137,6 +137,12 @@ def main():
         ],
     )
     parser.add_argument(
+        "--graph-dir",
+        type=Path,
+        default=Path("graphs_triang"),
+        help="Directory containing RS2 graph files",
+    )
+    parser.add_argument(
         "--processors",
         nargs="+",
         type=int,
@@ -180,9 +186,9 @@ def main():
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     for graph in args.graphs:
-        graph_path = ROOT / "graphs_triang" / f"{graph}.txt"
+        graph_path = ROOT / args.graph_dir / f"{graph}.txt"
         if Path(graph).name != graph or not graph_path.is_file():
-            parser.error(f"Graph not found in graphs_triang: {graph}")
+            parser.error(f"Graph not found in {args.graph_dir}: {graph}")
 
     if any(p <= 0 for p in args.processors):
         parser.error("Processor counts must be positive")
